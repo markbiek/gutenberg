@@ -397,16 +397,21 @@ class WP_Style_Engine {
 		}
 
 		// Build CSS rules output.
-		$selector      = isset( $options['selector'] ) ? $options['selector'] : null;
-		$css           = array();
-		$styles_output = array();
+		$selector        = isset( $options['selector'] ) ? $options['selector'] : null;
+		$should_prettify = isset( $options['prettify'] ) ? $options['prettify'] : null;
+		$css             = array();
+		$styles_output   = array();
 
 		if ( ! empty( $css_rules ) ) {
 			// Generate inline style rules.
 			foreach ( $css_rules as $rule => $value ) {
 				$filtered_css = esc_html( safecss_filter_attr( "{$rule}: {$value}" ) );
 				if ( ! empty( $filtered_css ) ) {
-					$css[] = $filtered_css . ';';
+					if ( $should_prettify ) {
+						$css[] = "\t$filtered_css;\n";
+					} else {
+						$css[] = $filtered_css . ';';
+					}
 				}
 			}
 		}
@@ -415,9 +420,15 @@ class WP_Style_Engine {
 		if ( ! empty( $css ) ) {
 			// Return an entire rule if there is a selector.
 			if ( $selector ) {
-				$style_block          = "$selector { ";
-				$style_block         .= implode( ' ', $css );
-				$style_block         .= ' }';
+				if ( $should_prettify ) {
+					$style_block  = "$selector {\n";
+					$style_block .= implode( '', $css );
+					$style_block .= "}\n";
+				} else {
+					$style_block  = "$selector { ";
+					$style_block .= implode( ' ', $css );
+					$style_block .= ' }';
+				}
 				$styles_output['css'] = $style_block;
 			} else {
 				$styles_output['css'] = implode( ' ', $css );
