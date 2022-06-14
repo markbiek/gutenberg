@@ -202,6 +202,7 @@ function gutenberg_render_layout_support_flag( $block_content, $block ) {
 	if ( $layout_classname && is_string( $layout_classname ) ) {
 		$class_names[] = sanitize_title( $layout_classname );
 	}
+	$layout_definitions = _wp_array_get( $default_layout, array( 'definitions' ), array() );
 
 	$gap_value = _wp_array_get( $block, array( 'attrs', 'style', 'spacing', 'blockGap' ) );
 	// Skip if gap value contains unsupported characters.
@@ -220,7 +221,7 @@ function gutenberg_render_layout_support_flag( $block_content, $block ) {
 	// If a block's block.json skips serialization for spacing or spacing.blockGap,
 	// don't apply the user-defined value to the styles.
 	$should_skip_gap_serialization = gutenberg_should_skip_block_supports_serialization( $block_type, 'spacing', 'blockGap' );
-	$style                         = gutenberg_get_layout_style( ".$block_classname.$container_class", $used_layout, $has_block_gap_support, $gap_value, $should_skip_gap_serialization, $fallback_gap_value );
+	$style                         = gutenberg_get_layout_style( ".$block_class_name.$container_class", $used_layout, $has_block_gap_support, $gap_value, $should_skip_gap_serialization, $fallback_gap_value );
 
 	// Only add container class and enqueue block support styles if unique styles were generated.
 	if ( ! empty( $style ) ) {

@@ -52,10 +52,6 @@ const layoutBlockSupportKey = '__experimentalLayout';
 function getLayoutClasses( layout, layoutDefinitions ) {
 	const layoutClassnames = [];
 
-	if ( ! layout ) {
-		return layoutClassnames;
-	}
-
 	if ( layoutDefinitions?.[ layout?.type || 'default' ]?.className ) {
 		layoutClassnames.push(
 			layoutDefinitions?.[ layout?.type || 'default' ]?.className
