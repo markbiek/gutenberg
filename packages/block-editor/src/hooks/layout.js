@@ -44,35 +44,35 @@ const layoutBlockSupportKey = '__experimentalLayout';
  * have the style engine generate a more extensive list of utility classnames which
  * will then replace this method.
  *
- * @param { Array } attributes Array of block attributes.
+ * @param { Object } layout            Layout object.
+ * @param { Object } layoutDefinitions An object containing layout definitions, stored in theme.json.
  *
  * @return { Array } Array of CSS classname strings.
  */
-function getLayoutClasses( attributes ) {
+function getLayoutClasses( layout, layoutDefinitions ) {
 	const layoutClassnames = [];
 
-	if ( ! attributes.layout ) {
+	if ( ! layout ) {
 		return layoutClassnames;
 	}
 
-	if ( attributes?.layout?.orientation ) {
+	if ( layoutDefinitions?.[ layout?.type || 'default' ]?.className ) {
 		layoutClassnames.push(
-			`is-${ kebabCase( attributes.layout.orientation ) }`
+			layoutDefinitions?.[ layout?.type || 'default' ]?.className
 		);
 	}
 
-	if ( attributes?.layout?.justifyContent ) {
+	if ( layout?.orientation ) {
+		layoutClassnames.push( `is-${ kebabCase( layout.orientation ) }` );
+	}
+
+	if ( layout?.justifyContent ) {
 		layoutClassnames.push(
-			`is-content-justification-${ kebabCase(
-				attributes.layout.justifyContent
-			) }`
+			`is-content-justification-${ kebabCase( layout.justifyContent ) }`
 		);
 	}
 
-	if (
-		attributes?.layout?.flexWrap &&
-		attributes.layout.flexWrap === 'nowrap'
-	) {
+	if ( layout?.flexWrap && layout.flexWrap === 'nowrap' ) {
 		layoutClassnames.push( 'is-nowrap' );
 	}
 
@@ -260,11 +260,8 @@ export const withLayoutStyles = createHigherOrderComponent(
 			? defaultThemeLayout
 			: layout || defaultBlockLayout || {};
 		const layoutClasses = shouldRenderLayoutStyles
-			? getLayoutClasses( attributes )
+			? getLayoutClasses( usedLayout, defaultThemeLayout?.definitions )
 			: null;
-		const layoutType = usedLayout?.type || 'default';
-		const layoutClassName =
-			defaultThemeLayout?.definitions?.[ layoutType ]?.className || '';
 		const selector = `.${ getBlockDefaultClassName(
 			name
 		) }.wp-container-${ id }`;
@@ -275,7 +272,9 @@ export const withLayoutStyles = createHigherOrderComponent(
 		// The CSS and `style` element is only output if it is not empty.
 		let css;
 		if ( shouldRenderLayoutStyles ) {
-			const fullLayoutType = getLayoutType( layoutType );
+			const fullLayoutType = getLayoutType(
+				usedLayout?.type || 'default'
+			);
 			css = fullLayoutType?.getLayoutStyle?.( {
 				blockName: name,
 				selector,
@@ -291,7 +290,6 @@ export const withLayoutStyles = createHigherOrderComponent(
 			props?.className,
 			{
 				[ `wp-container-${ id }` ]: shouldRenderLayoutStyles && !! css, // Only attach a container class if there is generated CSS to be attached.
-				[ layoutClassName ]: shouldRenderLayoutStyles,
 			},
 			layoutClasses
 		);
