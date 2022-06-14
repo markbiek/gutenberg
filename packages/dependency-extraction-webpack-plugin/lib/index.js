@@ -218,7 +218,7 @@ class DependencyExtractionWebpackPlugin {
 				hashDigestLength,
 			} = compilation.outputOptions;
 
-			const contentHash = chunkFiles
+			const contentHash = chunkFiles.sort()
 				.reduce( ( hash, filename ) => {
 					const asset = compilation.getAsset( filename );
 					return hash.update( asset.source.buffer() );
