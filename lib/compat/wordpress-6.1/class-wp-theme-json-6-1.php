@@ -586,6 +586,63 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 	}
 
 	/**
+	 * Returns the stylesheet that results of processing
+	 * the theme.json structure this object represents.
+	 *
+	 * @param array $types    Types of styles to load. Will load all by default. It accepts:
+	 *                         'variables': only the CSS Custom Properties for presets & custom ones.
+	 *                         'styles': only the styles section in theme.json.
+	 *                         'presets': only the classes for the presets.
+	 * @param array $origins A list of origins to include. By default it includes VALID_ORIGINS.
+	 * @return string Stylesheet.
+	 */
+	public function get_stylesheet( $types = array( 'variables', 'styles', 'presets' ), $origins = null ) {
+		if ( null === $origins ) {
+			$origins = static::VALID_ORIGINS;
+		}
+
+		if ( is_string( $types ) ) {
+			// Dispatch error and map old arguments to new ones.
+			_deprecated_argument( __FUNCTION__, '5.9' );
+			if ( 'block_styles' === $types ) {
+				$types = array( 'styles', 'presets' );
+			} elseif ( 'css_variables' === $types ) {
+				$types = array( 'variables' );
+			} else {
+				$types = array( 'variables', 'styles', 'presets' );
+			}
+		}
+
+		$blocks_metadata = static::get_blocks_metadata();
+		$style_nodes     = static::get_style_nodes( $this->theme_json, $blocks_metadata );
+		$setting_nodes   = static::get_setting_nodes( $this->theme_json, $blocks_metadata );
+
+		$stylesheet = '';
+
+		if ( in_array( 'variables', $types, true ) ) {
+			$stylesheet .= $this->get_css_variables( $setting_nodes, $origins );
+		}
+
+		if ( in_array( 'styles', $types, true ) ) {
+			$stylesheet .= $this->get_block_classes( $style_nodes );
+		} elseif ( in_array( 'block-layout-styles', $types, true ) ) {
+			$stylesheet .= $this->get_layout_styles(
+				array(
+					'path'     => array( 'styles' ),
+					'selector' => static::ROOT_BLOCK_SELECTOR,
+				),
+				true
+			);
+		}
+
+		if ( in_array( 'presets', $types, true ) ) {
+			$stylesheet .= $this->get_preset_classes( $setting_nodes, $origins );
+		}
+
+		return $stylesheet;
+	}
+
+	/**
 	 * Gets the CSS rules for a particular block from theme.json.
 	 *
 	 * @param array $block_metadata Metadata about the block to get styles for.
@@ -716,23 +773,27 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 	}
 
 	/**
-	 * Get the CSS layout rules for a particular block from theme.json.
+	 * Get the CSS layout rules for a particular block from theme.json layout definitions.
 	 *
-	 * @param array $block_metadata Metadata about the block to get styles for.
+	 * @param array   $block_metadata      Metadata about the block to get styles for.
+	 * @param boolean $skip_default_layout Whether to skip outputting the default layout, and force outputting remaining layout styles.
 	 *
 	 * @return string Layout styles for the block.
 	 */
-	protected function get_layout_styles( $block_metadata ) {
+	protected function get_layout_styles( $block_metadata, $skip_default_layout = false ) {
 		$block_rules           = '';
 		$selector              = isset( $block_metadata['selector'] ) ? $block_metadata['selector'] : '';
 		$has_block_gap_support = _wp_array_get( $this->theme_json, array( 'settings', 'spacing', 'blockGap' ) ) !== null;
 		$node                  = _wp_array_get( $this->theme_json, $block_metadata['path'], array() );
 		$layout_definitions    = _wp_array_get( $this->theme_json, array( 'settings', 'layout', 'definitions' ), array() );
 
-		// TODO: We might still need to output rules if blockGap isn't enabled — for example, for fallback gap on flex layout blocks.
-		if ( $has_block_gap_support ) {
+		if ( $has_block_gap_support || $skip_default_layout ) {
+			// TODO: Get the fallback gap style working at the block-level, rather than hard-coded `0.5em`.
 			$fallback_gap_value = '0.5em';
-			$block_gap_value    = _wp_array_get( $node, array( 'spacing', 'blockGap' ), $fallback_gap_value );
+			$block_gap_value    =
+				$has_block_gap_support ?
+				_wp_array_get( $node, array( 'spacing', 'blockGap' ), $fallback_gap_value ) :
+				$fallback_gap_value;
 
 			// Support split row / column values and concatenate to a shorthand value.
 			if ( is_array( $block_gap_value ) ) {
@@ -742,7 +803,12 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 			}
 
 			if ( $block_gap_value ) {
-				foreach ( $layout_definitions as $layout_definition ) {
+				foreach ( $layout_definitions as $layout_definition_key => $layout_definition ) {
+					// Allow skipping default layout, for example, so that classic themes can still output flex gap styles.
+					if ( $skip_default_layout && 'default' === $layout_definition_key ) {
+						continue;
+					}
+
 					$class_name      = _wp_array_get( $layout_definition, array( 'className' ), false );
 					$block_gap_rules = _wp_array_get( $layout_definition, array( 'blockGapStyles' ), array() );
 
