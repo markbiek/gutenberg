@@ -75,7 +75,7 @@ function gutenberg_get_global_stylesheet( $types = array() ) {
 	if ( empty( $types ) && ! $supports_theme_json ) {
 		$types = array( 'variables', 'presets' );
 		if ( current_theme_supports( 'wp-block-styles' ) ) {
-			$types[] = 'block-layout-styles';
+			$types[] = 'base-layout-styles';
 		}
 	} elseif ( empty( $types ) ) {
 		$types = array( 'variables', 'styles', 'presets' );

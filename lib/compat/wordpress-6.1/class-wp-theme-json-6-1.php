@@ -625,13 +625,14 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 
 		if ( in_array( 'styles', $types, true ) ) {
 			$stylesheet .= $this->get_block_classes( $style_nodes );
-		} elseif ( in_array( 'block-layout-styles', $types, true ) ) {
+		} elseif ( in_array( 'base-layout-styles', $types, true ) ) {
+			// Base layout styles are provided as part of `styles`,
+			// so only output separately if explicitly requested.
 			$stylesheet .= $this->get_layout_styles(
 				array(
 					'path'     => array( 'styles' ),
 					'selector' => static::ROOT_BLOCK_SELECTOR,
-				),
-				true
+				)
 			);
 		}
 
@@ -731,7 +732,6 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 			$block_rules .= '.wp-site-blocks > .alignright { float: right; margin-left: 2em; }';
 			$block_rules .= '.wp-site-blocks > .aligncenter { justify-content: center; margin-left: auto; margin-right: auto; }';
 
-			$has_block_gap_support = _wp_array_get( $this->theme_json, array( 'settings', 'spacing', 'blockGap' ) ) !== null;
 			if ( $has_block_gap_support ) {
 				$block_rules .= '.wp-site-blocks > * { margin-block-start: 0; margin-block-end: 0; }';
 				$block_rules .= '.wp-site-blocks > * + * { margin-block-start: var( --wp--style--block-gap ); }';
@@ -780,14 +780,18 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 	 *
 	 * @return string Layout styles for the block.
 	 */
-	protected function get_layout_styles( $block_metadata, $skip_default_layout = false ) {
-		$block_rules           = '';
-		$selector              = isset( $block_metadata['selector'] ) ? $block_metadata['selector'] : '';
-		$has_block_gap_support = _wp_array_get( $this->theme_json, array( 'settings', 'spacing', 'blockGap' ) ) !== null;
-		$node                  = _wp_array_get( $this->theme_json, $block_metadata['path'], array() );
-		$layout_definitions    = _wp_array_get( $this->theme_json, array( 'settings', 'layout', 'definitions' ), array() );
+	protected function get_layout_styles( $block_metadata ) {
+		$block_rules              = '';
+		$selector                 = isset( $block_metadata['selector'] ) ? $block_metadata['selector'] : '';
+		$has_block_gap_support    = _wp_array_get( $this->theme_json, array( 'settings', 'spacing', 'blockGap' ) ) !== null;
+		$has_block_styles_support = current_theme_supports( 'wp-block-styles' );
+		$node                     = _wp_array_get( $this->theme_json, $block_metadata['path'], array() );
+		$layout_definitions       = _wp_array_get( $this->theme_json, array( 'settings', 'layout', 'definitions' ), array() );
 
-		if ( $has_block_gap_support || $skip_default_layout ) {
+		// Gap styles will only be output if the theme has block gap support, or supports `wp-block-styles`.
+		// In this way, we tie the concept of gap styles to the styles that ship with core blocks.
+		// Default layout gap styles will be skipped for themes that do not explicitly opt-in to blockGap with a `true` or `false` value.
+		if ( $has_block_gap_support || $has_block_styles_support ) {
 			// TODO: Get the fallback gap style working at the block-level, rather than hard-coded `0.5em`.
 			$fallback_gap_value = '0.5em';
 			$block_gap_value    =
@@ -805,7 +809,7 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 			if ( $block_gap_value ) {
 				foreach ( $layout_definitions as $layout_definition_key => $layout_definition ) {
 					// Allow skipping default layout, for example, so that classic themes can still output flex gap styles.
-					if ( $skip_default_layout && 'default' === $layout_definition_key ) {
+					if ( ! $has_block_gap_support && 'default' === $layout_definition_key ) {
 						continue;
 					}
 
@@ -842,8 +846,12 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 			}
 		}
 
-		// Output base styles.
-		if ( static::ROOT_BLOCK_SELECTOR === $selector ) {
+		// Output base styles. These can be skipped by themes that remove both `blockGap` and `wp-block-styles` support.
+		// This ensures that classic themes have a mechanism to opt-out of layout styles if need be.
+		if (
+			static::ROOT_BLOCK_SELECTOR === $selector &&
+			( $has_block_gap_support || $has_block_styles_support )
+		) {
 			foreach ( $layout_definitions as $layout_definition ) {
 				$class_name       = _wp_array_get( $layout_definition, array( 'className' ), false );
 				$base_style_rules = _wp_array_get( $layout_definition, array( 'baseStyles' ), array() );
