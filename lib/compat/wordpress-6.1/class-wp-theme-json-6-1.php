@@ -626,14 +626,23 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 		if ( in_array( 'styles', $types, true ) ) {
 			$stylesheet .= $this->get_block_classes( $style_nodes );
 		} elseif ( in_array( 'base-layout-styles', $types, true ) ) {
-			// Base layout styles are provided as part of `styles`,
-			// so only output separately if explicitly requested.
-			$stylesheet .= $this->get_layout_styles(
+			// Base layout styles are provided as part of `styles`, so only output separately if explicitly requested.
+			// For backwards compatibility, the Columns block is explicitly included, to support a different default gap value.
+			$base_styles_nodes = array(
 				array(
 					'path'     => array( 'styles' ),
 					'selector' => static::ROOT_BLOCK_SELECTOR,
-				)
+				),
+				array(
+					'path'     => array( 'styles', 'blocks', 'core/columns' ),
+					'selector' => '.wp-block-columns',
+					'name'     => 'core/columns',
+				),
 			);
+
+			foreach ( $base_styles_nodes as $base_style_node ) {
+				$stylesheet .= $this->get_layout_styles( $base_style_node );
+			}
 		}
 
 		if ( in_array( 'presets', $types, true ) ) {
@@ -792,18 +801,28 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 		// In this way, we tie the concept of gap styles to the styles that ship with core blocks.
 		// Default layout gap styles will be skipped for themes that do not explicitly opt-in to blockGap with a `true` or `false` value.
 		if ( $has_block_gap_support || $has_block_styles_support ) {
-			// TODO: Get the fallback gap style working at the block-level, rather than hard-coded `0.5em`.
-			$fallback_gap_value = '0.5em';
-			$block_gap_value    =
-				$has_block_gap_support ?
-				_wp_array_get( $node, array( 'spacing', 'blockGap' ), $fallback_gap_value ) :
-				$fallback_gap_value;
+			$block_gap_value = null;
+			// Use a fallback gap value if block gap support is not available.
+			if ( ! $has_block_gap_support ) {
+				$block_gap_value = '0.5em';
+				if ( isset( $block_metadata['name'] ) ) {
+					$block_type      = WP_Block_Type_Registry::get_instance()->get_registered( $block_metadata['name'] );
+					$block_gap_value = _wp_array_get( $block_type->supports, array( 'spacing', 'blockGap', '__experimentalDefault' ), '0.5em' );
+				}
+			} else {
+				$block_gap_value = _wp_array_get( $node, array( 'spacing', 'blockGap' ), null );
+			}
 
 			// Support split row / column values and concatenate to a shorthand value.
 			if ( is_array( $block_gap_value ) ) {
-				$gap_row         = isset( $block_gap_value['top'] ) ? $block_gap_value['top'] : $fallback_gap_value;
-				$gap_column      = isset( $block_gap_value['left'] ) ? $block_gap_value['left'] : $fallback_gap_value;
-				$block_gap_value = $gap_row === $gap_column ? $gap_row : $gap_row . ' ' . $gap_column;
+				if ( isset( $block_gap_value['top'] ) && isset( $block_gap_value['left'] ) ) {
+					$gap_row         = $block_gap_value['top'];
+					$gap_column      = $block_gap_value['left'];
+					$block_gap_value = $gap_row === $gap_column ? $gap_row : $gap_row . ' ' . $gap_column;
+				} else {
+					// Skip outputting gap value if not all sides are provided.
+					$block_gap_value = null;
+				}
 			}
 
 			if ( $block_gap_value ) {
