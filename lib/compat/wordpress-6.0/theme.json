@@ -196,7 +196,7 @@
 							"selector": " > .alignleft",
 							"rules": {
 								"float": "left",
-								"margin-inline-start": 0,
+								"margin-inline-start": "0",
 								"margin-inline-end": "2em"
 							}
 						},
