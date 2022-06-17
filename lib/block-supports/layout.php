@@ -144,6 +144,49 @@ function gutenberg_get_layout_style( $selector, $layout, $has_block_gap_support 
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * Generates the utility classnames for the given blocks layout attributes.
+ * This method was primarily added to reintroduce classnames that were removed
+ * in the 5.9 release (https://github.com/WordPress/gutenberg/issues/38719), rather
+ * than providing an extensive list of all possible layout classes. The plan is to
+ * have the style engine generate a more extensive list of utility classnames which
+ * will then replace this method.
+ *
+ * @param array $layout             Array of layout attributes for the current block.
+ * @param array $layout_definitions Array of layout definitions.
+ *
+ * @return array Array of CSS classname strings.
+ */
+function gutenberg_get_layout_classes( $layout, $layout_definitions ) {
+	$class_names = array();
+
+	$layout_type_class_name = _wp_array_get( $layout_definitions, array( 'default', 'className' ), '' );
+	if ( ! empty( $layout['type'] ) ) {
+		$layout_type_class_name = _wp_array_get( $layout_definitions, array( $layout['type'], 'className' ), '' );
+	}
+
+	if ( $layout_type_class_name ) {
+		$class_names[] = $layout_type_class_name;
+	}
+
+	if ( ! empty( $layout['orientation'] ) ) {
+		$class_names[] = 'is-' . sanitize_title( $layout['orientation'] );
+	}
+
+	if ( ! empty( $layout['justifyContent'] ) ) {
+		$class_names[] = 'is-content-justification-' . sanitize_title( $layout['justifyContent'] );
+	}
+
+	if ( ! empty( $layout['flexWrap'] ) && 'nowrap' === $layout['flexWrap'] ) {
+		$class_names[] = 'is-nowrap';
+	}
+
+	return $class_names;
+}
+
+/**
+>>>>>>> 7e5a9e43e3 (Fix linting issues)
  * Renders the layout config to the block wrapper.
  *
  * @param  string $block_content Rendered block content.
