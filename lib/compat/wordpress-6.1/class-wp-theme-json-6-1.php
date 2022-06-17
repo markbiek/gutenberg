@@ -784,7 +784,7 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 	/**
 	 * Get the CSS layout rules for a particular block from theme.json layout definitions.
 	 *
-	 * @param array   $block_metadata      Metadata about the block to get styles for.
+	 * @param array $block_metadata Metadata about the block to get styles for.
 	 *
 	 * @return string Layout styles for the block.
 	 */
