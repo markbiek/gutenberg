@@ -864,11 +864,9 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 			}
 		}
 
-		// Output base styles. These can be skipped by themes that remove both `blockGap` and `wp-block-styles` support.
-		// This ensures that classic themes have a mechanism to opt-out of layout styles if need be.
+		// Output base styles.
 		if (
-			static::ROOT_BLOCK_SELECTOR === $selector &&
-			( $has_block_gap_support || $has_block_styles_support )
+			static::ROOT_BLOCK_SELECTOR === $selector
 		) {
 			foreach ( $layout_definitions as $layout_definition ) {
 				$class_name       = _wp_array_get( $layout_definition, array( 'className' ), false );
