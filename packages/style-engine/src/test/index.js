@@ -8,6 +8,15 @@ describe( 'generate', () => {
 		expect( generate( {}, '.some-selector' ) ).toEqual( '' );
 	} );
 
+	it( 'should generate empty style with empty keys', () => {
+		expect(
+			generate( {
+				spacing: undefined,
+				color: undefined,
+			} )
+		).toEqual( '' );
+	} );
+
 	it( 'should generate inline styles where there is no selector', () => {
 		expect(
 			generate( {
@@ -83,21 +92,6 @@ describe( 'generate', () => {
 		).toEqual(
 			'color: var(--wp--preset--color--ham-sandwich); margin: 3px;'
 		);
-	} );
-
-	it( 'should use top-level styles and ignore elements object when specifying a selector', () => {
-		expect(
-			generate( {
-				spacing: { padding: '10px', margin: '12px' },
-				elements: {
-					link: {
-						color: {
-							text: 'peachpuff',
-						},
-					},
-				},
-			} )
-		).toEqual( 'margin: 12px; padding: 10px;' );
 	} );
 } );
 
