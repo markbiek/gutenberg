@@ -68,7 +68,6 @@ function gutenberg_get_layout_style( $selector, $layout, $has_block_gap_support 
 			if ( is_array( $gap_value ) ) {
 				$gap_value = isset( $gap_value['top'] ) ? $gap_value['top'] : null;
 			}
-			// TODO: Ensure that theme.json is outputting the default gap that used to be rendered via: var( --wp--style--block-gap, 0.5em ).
 			if ( $gap_value && ! $should_skip_gap_serialization ) {
 				$style .= "$selector > * { margin-block-start: 0; margin-block-end: 0; }";
 				$style .= "$selector > * + * { margin-block-start: $gap_value; margin-block-end: 0; }";
@@ -103,7 +102,6 @@ function gutenberg_get_layout_style( $selector, $layout, $has_block_gap_support 
 				$gap_column = isset( $gap_value['left'] ) ? $gap_value['left'] : $fallback_gap_value;
 				$gap_value  = $gap_row === $gap_column ? $gap_row : $gap_row . ' ' . $gap_column;
 			}
-			// TODO: Ensure that theme.json is outputting the default gap that used to be rendered via: var( --wp--style--block-gap, 0.5em ).
 			if ( $gap_value && ! $should_skip_gap_serialization ) {
 				$style .= "$selector {";
 				$style .= "gap: $gap_value;";
