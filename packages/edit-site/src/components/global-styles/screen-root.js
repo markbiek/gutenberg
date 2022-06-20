@@ -32,9 +32,10 @@ import { useRandomizer } from './hooks';
 function ScreenRoot() {
 	const { variations } = useSelect( ( select ) => {
 		return {
-			variations: select(
-				coreStore
-			).__experimentalGetCurrentThemeGlobalStylesVariations(),
+			variations:
+				select(
+					coreStore
+				).__experimentalGetCurrentThemeGlobalStylesVariations(),
 		};
 	}, [] );
 
