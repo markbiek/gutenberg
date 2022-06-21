@@ -795,6 +795,7 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 		$has_block_styles_support = current_theme_supports( 'wp-block-styles' );
 		$node                     = _wp_array_get( $this->theme_json, $block_metadata['path'], array() );
 		$layout_definitions       = _wp_array_get( $this->theme_json, array( 'settings', 'layout', 'definitions' ), array() );
+		$layout_selector_pattern  = '/^[a-zA-Z0-9\-\.\ *+>]*$/'; // Allow alphanumeric classnames, spaces, wildcard, sibling, and child combinator selectors.
 
 		// Gap styles will only be output if the theme has block gap support, or supports `wp-block-styles`.
 		// In this way, we tie the concept of gap styles to the styles that ship with core blocks.
@@ -831,22 +832,29 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 						continue;
 					}
 
-					$class_name      = _wp_array_get( $layout_definition, array( 'className' ), false );
+					$class_name      = sanitize_title( _wp_array_get( $layout_definition, array( 'className' ), false ) );
 					$block_gap_rules = _wp_array_get( $layout_definition, array( 'blockGapStyles' ), array() );
 
 					if (
-						is_string( $class_name ) &&
+						! empty( $class_name ) &&
 						! empty( $block_gap_rules )
 					) {
 						foreach ( $block_gap_rules as $block_gap_rule ) {
 							$declarations = array();
-							if ( isset( $block_gap_rule['selector'] ) && ! empty( $block_gap_rule['rules'] ) ) {
+							if (
+								isset( $block_gap_rule['selector'] ) &&
+								preg_match( $layout_selector_pattern, $block_gap_rule['selector'] ) &&
+								! empty( $block_gap_rule['rules'] )
+							) {
 								// Iterate over each of the styling rules and substitute non-string values such as `null` with the real `blockGap` value.
 								foreach ( $block_gap_rule['rules'] as $css_property => $css_value ) {
-									$declarations[] = array(
-										'name'  => $css_property,
-										'value' => is_string( $css_value ) ? $css_value : $block_gap_value,
-									);
+									$current_css_value = is_string( $css_value ) ? $css_value : $block_gap_value;
+									if ( static::is_safe_css_declaration( $css_property, $current_css_value ) ) {
+										$declarations[] = array(
+											'name'  => $css_property,
+											'value' => $current_css_value,
+										);
+									}
 								}
 
 								$format          = static::ROOT_BLOCK_SELECTOR === $selector ? '%s .%s%s' : '%s.%s%s';
@@ -869,22 +877,28 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 			static::ROOT_BLOCK_SELECTOR === $selector
 		) {
 			foreach ( $layout_definitions as $layout_definition ) {
-				$class_name       = _wp_array_get( $layout_definition, array( 'className' ), false );
+				$class_name       = sanitize_title( _wp_array_get( $layout_definition, array( 'className' ), false ) );
 				$base_style_rules = _wp_array_get( $layout_definition, array( 'baseStyles' ), array() );
 
 				if (
-					is_string( $class_name ) &&
+					! empty( $class_name ) &&
 					! empty( $base_style_rules )
 				) {
 					foreach ( $base_style_rules as $base_style_rule ) {
 						$declarations = array();
 
-						if ( isset( $base_style_rule['selector'] ) && ! empty( $base_style_rule['rules'] ) ) {
+						if (
+							isset( $base_style_rule['selector'] ) &&
+							preg_match( $layout_selector_pattern, $base_style_rule['selector'] ) &&
+							! empty( $base_style_rule['rules'] )
+						) {
 							foreach ( $base_style_rule['rules'] as $css_property => $css_value ) {
-								$declarations[] = array(
-									'name'  => $css_property,
-									'value' => $css_value,
-								);
+								if ( static::is_safe_css_declaration( $css_property, $css_value ) ) {
+									$declarations[] = array(
+										'name'  => $css_property,
+										'value' => $css_value,
+									);
+								}
 							}
 
 							$format          = static::ROOT_BLOCK_SELECTOR === $selector ? '%s .%s%s' : '%s.%s%s';
