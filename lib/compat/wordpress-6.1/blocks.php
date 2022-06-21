@@ -19,6 +19,8 @@ function gutenberg_safe_style_attrs_6_1( $attrs ) {
 	$attrs[] = 'gap';
 	$attrs[] = 'margin-block-start';
 	$attrs[] = 'margin-block-end';
+	$attrs[] = 'margin-inline-start';
+	$attrs[] = 'margin-inline-end';
 
 	return $attrs;
 }
