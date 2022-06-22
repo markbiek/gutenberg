@@ -255,7 +255,7 @@ class WP_Style_Engine_Test extends WP_UnitTestCase {
 				),
 				'options'         => array( 'css_vars' => true ),
 				'expected_output' => array(
-					'css' => 'padding: var(--wp--preset--spacing-size--20); margin: var(--wp--preset--spacing-size--10);',
+					'css' => 'padding: var(--wp--preset--spacing--20); margin: var(--wp--preset--spacing--10);',
 				),
 			),
 
@@ -278,7 +278,7 @@ class WP_Style_Engine_Test extends WP_UnitTestCase {
 				),
 				'options'         => array( 'css_vars' => true ),
 				'expected_output' => array(
-					'css' => 'padding-left: var(--wp--preset--spacing-size--30); padding-right: var(--wp--preset--spacing-size--40); padding-top: 14px; padding-bottom: 14px; margin-left: var(--wp--preset--spacing-size--10); margin-right: var(--wp--preset--spacing-size--20); margin-top: 1rem; margin-bottom: 1rem;',
+					'css' => 'padding-left: var(--wp--preset--spacing--30); padding-right: var(--wp--preset--spacing--40); padding-top: 14px; padding-bottom: 14px; margin-left: var(--wp--preset--spacing--10); margin-right: var(--wp--preset--spacing--20); margin-top: 1rem; margin-bottom: 1rem;',
 				),
 			),
 
