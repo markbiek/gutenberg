@@ -135,7 +135,7 @@ export default {
 		const rules = [];
 
 		if ( flexWrap && flexWrap !== 'wrap' ) {
-			rules.push( flexWrap );
+			rules.push( `flex-wrap: ${ flexWrap }` );
 		}
 
 		if ( orientation === 'horizontal' ) {
