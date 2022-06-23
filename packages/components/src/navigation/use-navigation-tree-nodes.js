@@ -17,13 +17,13 @@ export const useNavigationTreeNodes = () => {
 		} ) );
 	}, [] );
 
-	const removeNode = ( key ) => {
+	const removeNode = useCallback( ( key ) => {
 		return setNodes( ( original ) => {
 			// eslint-disable-next-line no-unused-vars
 			const { [ key ]: removedNode, ...remainingNodes } = original;
 			return remainingNodes;
 		} );
-	};
+	}, [] );
 
 	return { nodes, getNode, addNode, removeNode };
 };
