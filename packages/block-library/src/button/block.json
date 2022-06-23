@@ -89,8 +89,16 @@
 				"radius": true
 			}
 		},
-		"__experimentalSelector": ".wp-block-button__link",
-		"__experimentalStyle": {
+		"__experimentalSelector": ".wp-block-button__link"
+	},
+	"styles": [
+		{ "name": "fill", "label": "Fill", "isDefault": true },
+		{ "name": "outline", "label": "Outline" }
+	],
+	"editorStyle": "wp-block-button-editor",
+	"style": [
+		"wp-block-button",
+		{
 			"border": {
 				"//": "100% causes an oval, but any explicit but really high value retains the pill shape.",
 				"radius": "9999px"
@@ -113,11 +121,5 @@
 				}
 			}
 		}
-	},
-	"styles": [
-		{ "name": "fill", "label": "Fill", "isDefault": true },
-		{ "name": "outline", "label": "Outline" }
-	],
-	"editorStyle": "wp-block-button-editor",
-	"style": "wp-block-button"
+	]
 }
