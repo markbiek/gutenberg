@@ -142,49 +142,6 @@ function gutenberg_get_layout_style( $selector, $layout, $has_block_gap_support 
 }
 
 /**
-<<<<<<< HEAD
-=======
- * Generates the utility classnames for the given blocks layout attributes.
- * This method was primarily added to reintroduce classnames that were removed
- * in the 5.9 release (https://github.com/WordPress/gutenberg/issues/38719), rather
- * than providing an extensive list of all possible layout classes. The plan is to
- * have the style engine generate a more extensive list of utility classnames which
- * will then replace this method.
- *
- * @param array $layout             Array of layout attributes for the current block.
- * @param array $layout_definitions Array of layout definitions.
- *
- * @return array Array of CSS classname strings.
- */
-function gutenberg_get_layout_classes( $layout, $layout_definitions ) {
-	$class_names = array();
-
-	$layout_type_class_name = _wp_array_get( $layout_definitions, array( 'default', 'className' ), '' );
-	if ( ! empty( $layout['type'] ) ) {
-		$layout_type_class_name = _wp_array_get( $layout_definitions, array( $layout['type'], 'className' ), '' );
-	}
-
-	if ( $layout_type_class_name ) {
-		$class_names[] = $layout_type_class_name;
-	}
-
-	if ( ! empty( $layout['orientation'] ) ) {
-		$class_names[] = 'is-' . sanitize_title( $layout['orientation'] );
-	}
-
-	if ( ! empty( $layout['justifyContent'] ) ) {
-		$class_names[] = 'is-content-justification-' . sanitize_title( $layout['justifyContent'] );
-	}
-
-	if ( ! empty( $layout['flexWrap'] ) && 'nowrap' === $layout['flexWrap'] ) {
-		$class_names[] = 'is-nowrap';
-	}
-
-	return $class_names;
-}
-
-/**
->>>>>>> 7e5a9e43e3 (Fix linting issues)
  * Renders the layout config to the block wrapper.
  *
  * @param  string $block_content Rendered block content.
@@ -199,24 +156,24 @@ function gutenberg_render_layout_support_flag( $block_content, $block ) {
 		return $block_content;
 	}
 
-	$block_gap             = gutenberg_get_global_settings( array( 'spacing', 'blockGap' ) );
-	$default_layout        = gutenberg_get_global_settings( array( 'layout' ) );
-	$has_block_gap_support = isset( $block_gap ) ? null !== $block_gap : false;
-	$default_block_layout  = _wp_array_get( $block_type->supports, array( '__experimentalLayout', 'default' ), array() );
-	$used_layout           = isset( $block['attrs']['layout'] ) ? $block['attrs']['layout'] : $default_block_layout;
+	$block_gap              = gutenberg_get_global_settings( array( 'spacing', 'blockGap' ) );
+	$global_layout_settings = gutenberg_get_global_settings( array( 'layout' ) );
+	$has_block_gap_support  = isset( $block_gap ) ? null !== $block_gap : false;
+	$default_block_layout   = _wp_array_get( $block_type->supports, array( '__experimentalLayout', 'default' ), array() );
+	$used_layout            = isset( $block['attrs']['layout'] ) ? $block['attrs']['layout'] : $default_block_layout;
 	if ( isset( $used_layout['inherit'] ) && $used_layout['inherit'] ) {
-		if ( ! $default_layout ) {
+		if ( ! $global_layout_settings ) {
 			return $block_content;
 		}
-		$used_layout = $default_layout;
+		$used_layout = $global_layout_settings;
 	}
 
-	$class_names     = array();
-	// TODO: Should we handle the case where a block has opted out of using a classname? (e.g. how paragraph disables classnames)
-	$block_classname  = wp_get_block_default_classname( $block['blockName'] );
-	$container_class  = wp_unique_id( 'wp-container-' );
-	$class_names[]    = $container_class;
-	$layout_classname = '';
+	$class_names        = array();
+	$layout_definitions = _wp_array_get( $global_layout_settings, array( 'definitions' ), array() );
+	$block_classname    = wp_get_block_default_classname( $block['blockName'] );
+	$container_class    = wp_unique_id( 'wp-container-' );
+	$class_names[]      = $container_class;
+	$layout_classname   = '';
 
 	// The following section was added to reintroduce a small set of layout classnames that were
 	// removed in the 5.9 release (https://github.com/WordPress/gutenberg/issues/38719). It is
