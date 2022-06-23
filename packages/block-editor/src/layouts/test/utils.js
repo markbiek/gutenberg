@@ -5,7 +5,7 @@ import { appendSelectors, getBlockGapCSS } from '../utils';
 
 const layoutDefinitions = {
 	default: {
-		blockGapStyles: [
+		spacingStyles: [
 			{
 				selector: ' > *',
 				rules: {
@@ -23,7 +23,7 @@ const layoutDefinitions = {
 		],
 	},
 	flex: {
-		blockGapStyles: [
+		spacingStyles: [
 			{
 				selector: '',
 				rules: {

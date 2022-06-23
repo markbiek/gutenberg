@@ -216,7 +216,7 @@
 							}
 						}
 					],
-					"blockGapStyles": [
+					"spacingStyles": [
 						{
 							"selector": " > *",
 							"rules": {
@@ -253,7 +253,7 @@
 							}
 						}
 					],
-					"blockGapStyles": [
+					"spacingStyles": [
 						{
 							"selector": "",
 							"rules": {

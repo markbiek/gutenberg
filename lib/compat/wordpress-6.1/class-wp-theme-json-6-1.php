@@ -833,21 +833,21 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 					}
 
 					$class_name      = sanitize_title( _wp_array_get( $layout_definition, array( 'className' ), false ) );
-					$block_gap_rules = _wp_array_get( $layout_definition, array( 'blockGapStyles' ), array() );
+					$spacing_rules = _wp_array_get( $layout_definition, array( 'spacingStyles' ), array() );
 
 					if (
 						! empty( $class_name ) &&
-						! empty( $block_gap_rules )
+						! empty( $spacing_rules )
 					) {
-						foreach ( $block_gap_rules as $block_gap_rule ) {
+						foreach ( $spacing_rules as $spacing_rule ) {
 							$declarations = array();
 							if (
-								isset( $block_gap_rule['selector'] ) &&
-								preg_match( $layout_selector_pattern, $block_gap_rule['selector'] ) &&
-								! empty( $block_gap_rule['rules'] )
+								isset( $spacing_rule['selector'] ) &&
+								preg_match( $layout_selector_pattern, $spacing_rule['selector'] ) &&
+								! empty( $spacing_rule['rules'] )
 							) {
 								// Iterate over each of the styling rules and substitute non-string values such as `null` with the real `blockGap` value.
-								foreach ( $block_gap_rule['rules'] as $css_property => $css_value ) {
+								foreach ( $spacing_rule['rules'] as $css_property => $css_value ) {
 									$current_css_value = is_string( $css_value ) ? $css_value : $block_gap_value;
 									if ( static::is_safe_css_declaration( $css_property, $current_css_value ) ) {
 										$declarations[] = array(
@@ -862,7 +862,7 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 									$format,
 									$selector,
 									$class_name,
-									$block_gap_rule['selector']
+									$spacing_rule['selector']
 								);
 								$block_rules    .= static::to_ruleset( $layout_selector, $declarations );
 							}

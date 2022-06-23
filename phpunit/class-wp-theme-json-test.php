@@ -852,7 +852,7 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 								),
 							),
 						),
-						'blockGapStyles' => array(
+						'spacingStyles' => array(
 							array(
 								'selector' => ' > *',
 								'rules'    => array(
@@ -883,7 +883,7 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 								),
 							),
 						),
-						'blockGapStyles' => array(
+						'spacingStyles' => array(
 							array(
 								'selector' => '',
 								'rules'    => array(

@@ -253,13 +253,13 @@ function getLayoutStyles( tree, style, selector, hasBlockGapSupport ) {
 	) {
 		gapValue = getGapCSSValue( gapValue, '0.5em' );
 		Object.values( tree.settings.layout.definitions ).forEach(
-			( { className, blockGapStyles } ) => {
-				if ( blockGapStyles?.length ) {
-					blockGapStyles.forEach( ( blockGapStyle ) => {
+			( { className, spacingStyles } ) => {
+				if ( spacingStyles?.length ) {
+					spacingStyles.forEach( ( spacingStyle ) => {
 						const declarations = [];
 
-						if ( blockGapStyle.rules ) {
-							Object.entries( blockGapStyle.rules ).forEach(
+						if ( spacingStyle.rules ) {
+							Object.entries( spacingStyle.rules ).forEach(
 								( [ cssProperty, cssValue ] ) => {
 									declarations.push(
 										`${ cssProperty }: ${
@@ -274,10 +274,10 @@ function getLayoutStyles( tree, style, selector, hasBlockGapSupport ) {
 							const combinedSelector =
 								selector === ROOT_BLOCK_SELECTOR
 									? `${ selector } .${ className }${
-											blockGapStyle?.selector || ''
+											spacingStyle?.selector || ''
 									  }`
 									: `${ selector }.${ className }${
-											blockGapStyle?.selector || ''
+											spacingStyle?.selector || ''
 									  }`;
 							ruleset += `${ combinedSelector } { ${ declarations.join(
 								'; '

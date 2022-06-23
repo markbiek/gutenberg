@@ -26,7 +26,7 @@ export function appendSelectors( selectors, append = '' ) {
 
 /**
  * Get generated blockGap CSS rules based on layout definitions provided in theme.json
- * Falsy values in the layout definition's blockGapStyles rules will be swapped out
+ * Falsy values in the layout definition's spacingStyles rules will be swapped out
  * with the provided `blockGapValue`.
  *
  * @param {string} selector          The CSS selector to target for the generated rules.
@@ -43,26 +43,22 @@ export function getBlockGapCSS(
 ) {
 	let output = '';
 	if (
-		layoutDefinitions?.[ layoutType ]?.blockGapStyles?.length &&
+		layoutDefinitions?.[ layoutType ]?.spacingStyles?.length &&
 		blockGapValue
 	) {
-		layoutDefinitions[ layoutType ].blockGapStyles.forEach(
-			( gapStyle ) => {
-				output += `${ appendSelectors(
-					selector,
-					gapStyle.selector.trim()
-				) } { `;
-				output += Object.entries( gapStyle.rules )
-					.map(
-						( [ cssProperty, value ] ) =>
-							`${ cssProperty }: ${
-								value ? value : blockGapValue
-							}`
-					)
-					.join( '; ' );
-				output += '; }';
-			}
-		);
+		layoutDefinitions[ layoutType ].spacingStyles.forEach( ( gapStyle ) => {
+			output += `${ appendSelectors(
+				selector,
+				gapStyle.selector.trim()
+			) } { `;
+			output += Object.entries( gapStyle.rules )
+				.map(
+					( [ cssProperty, value ] ) =>
+						`${ cssProperty }: ${ value ? value : blockGapValue }`
+				)
+				.join( '; ' );
+			output += '; }';
+		} );
 	}
 	return output;
 }
