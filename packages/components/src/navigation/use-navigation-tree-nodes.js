@@ -1,21 +1,21 @@
 /**
  * WordPress dependencies
  */
-import { useState } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 
 export const useNavigationTreeNodes = () => {
 	const [ nodes, setNodes ] = useState( {} );
 
 	const getNode = ( key ) => nodes[ key ];
 
-	const addNode = ( key, value ) => {
+	const addNode = useCallback( ( key, value ) => {
 		// eslint-disable-next-line no-unused-vars
 		const { children, ...newNode } = value;
 		return setNodes( ( original ) => ( {
 			...original,
 			[ key ]: newNode,
 		} ) );
-	};
+	}, [] );
 
 	const removeNode = ( key ) => {
 		return setNodes( ( original ) => {
