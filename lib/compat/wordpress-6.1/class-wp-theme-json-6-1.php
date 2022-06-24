@@ -832,7 +832,7 @@ class WP_Theme_JSON_6_1 extends WP_Theme_JSON_6_0 {
 						continue;
 					}
 
-					$class_name      = sanitize_title( _wp_array_get( $layout_definition, array( 'className' ), false ) );
+					$class_name    = sanitize_title( _wp_array_get( $layout_definition, array( 'className' ), false ) );
 					$spacing_rules = _wp_array_get( $layout_definition, array( 'spacingStyles' ), array() );
 
 					if (
